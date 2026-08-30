@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # MongoDB Cloud or Local Database
+  mongodb:
+    image: mongo:7-jammy
+    container_name: agentflow-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: agentflow
+    volumes:
+      - mongo_data:/data/db
+
+  # Redis for BullMQ
+  redis:
+    image: redis:7-alpine
+    container_name: agentflow-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  # Backend Server API
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: agentflow-server
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongodb:27017/agentflow
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET:-super_secret_agentflow_jwt_key_2026}
+      - CREDENTIAL_ENCRYPTION_KEY=${CREDENTIAL_ENCRYPTION_KEY:-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef}
+      - CLIENT_URL=http://localhost:3000
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    depends_on:
+      - mongodb
+      - redis
+
+  # Frontend Next.js Client
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=http://localhost:5000/api
+        - NEXT_PUBLIC_SOCKET_URL=http://localhost:5000
+    container_name: agentflow-client
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      - server
+
+volumes:
+  mongo_data:
+  redis_data:

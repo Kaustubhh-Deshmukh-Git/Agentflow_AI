@@ -1,0 +1,25 @@
+{
+  "name": "agentflow_ai",
+  "version": "1.0.0",
+  "description": "Agentflow_AI - Multi-Agent AI Operations Automation Platform",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently -n \"SERVER,CLIENT\" -c \"cyan,magenta\" \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "start": "concurrently -n \"SERVER,CLIENT\" -c \"cyan,magenta\" \"npm run start --prefix server\" \"npm run start --prefix client\"",
+    "build": "npm run build --prefix client",
+    "install-all": "npm install && npm install --prefix server && npm install --prefix client"
+  },
+  "keywords": [
+    "agentic-ai",
+    "workflow-automation",
+    "react-flow",
+    "socket-io",
+    "bullmq"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "concurrently": "^10.0.5"
+  }
+}

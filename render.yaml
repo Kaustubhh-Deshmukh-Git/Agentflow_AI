@@ -1,0 +1,36 @@
+services:
+  # Backend Express Server
+  - type: web
+    name: agentflow-api
+    env: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: MONGODB_URI
+        sync: false # Set in Render Dashboard with your MongoDB Atlas connection string
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: agentflow-redis
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CREDENTIAL_ENCRYPTION_KEY
+        generateValue: true
+      - key: CLIENT_URL
+        sync: false # Set to your frontend deployment URL (e.g., https://agentflow.vercel.app)
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+
+  # Redis Service for BullMQ
+  - type: redis
+    name: agentflow-redis
+    ipAllowList: []
+    plan: free
